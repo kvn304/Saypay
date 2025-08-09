@@ -1,3 +1,7 @@
+// Load environment variables from .env so Expo extra can receive keys in dev
+// This allows OPENAI_API_KEY, SUPABASE_URL, SUPABASE_ANON_KEY to be read from .env
+try { require('dotenv').config(); } catch {}
+
 export default ({ config }) => ({
   ...config,
   name: "SayPay - Voice Expense Tracker",

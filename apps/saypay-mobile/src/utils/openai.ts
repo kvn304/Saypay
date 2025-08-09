@@ -8,6 +8,10 @@ const OPENAI_API_KEY =
   process.env.OPENAI_API_KEY ||
   '';
 
+if (!OPENAI_API_KEY) {
+  console.warn('[openai] OPENAI_API_KEY not configured. Voice features will be disabled.');
+}
+
 // Enhanced cache configuration for production
 interface TranscriptCache {
   [key: string]: {
@@ -113,18 +117,14 @@ export const transcribeAudio = async (audioUri: string): Promise<TranscriptionRe
   }
 
   try {
-    // Read audio file as base64
-    const base64Audio = await FileSystem.readAsStringAsync(audioUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-
-    // Convert base64 to blob for FormData
-    const audioBlob = new Blob([Uint8Array.from(atob(base64Audio), c => c.charCodeAt(0))], {
-      type: 'audio/m4a'
-    });
-
+    // Prepare multipart form data (React Native friendly)
     const formData = new FormData();
-    formData.append('file', audioBlob, 'audio.m4a');
+    formData.append('file', {
+      // @ts-expect-error React Native FormData file
+      uri: audioUri,
+      name: 'audio.m4a',
+      type: 'audio/m4a',
+    });
     formData.append('model', 'whisper-1');
     formData.append('language', currentLanguage);
     formData.append('response_format', 'verbose_json');
@@ -134,6 +134,7 @@ export const transcribeAudio = async (audioUri: string): Promise<TranscriptionRe
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        // Do NOT set Content-Type; let fetch set proper multipart boundary
       },
       body: formData,
     });

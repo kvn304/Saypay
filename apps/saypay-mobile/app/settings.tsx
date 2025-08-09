@@ -9,11 +9,13 @@ import { useAuth } from '../src/contexts/AuthContext';
 import { useLanguage, languageOptions } from '../src/contexts/LanguageContext';
 
 export default function SettingsScreen() {
-  const { isDark, toggleTheme, colorTheme } = useTheme();
+  const { isDark, toggleTheme, colorTheme, setColorTheme } = useTheme();
   const { user } = useUser();
   const { signOut } = useAuth();
   const { language, setLanguage } = useLanguage();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+  const [showThemePicker, setShowThemePicker] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -52,13 +54,13 @@ export default function SettingsScreen() {
           icon: 'color-palette',
           label: 'Theme Color',
           value: colorTheme.charAt(0).toUpperCase() + colorTheme.slice(1),
-          onPress: () => {},
+          onPress: () => setShowThemePicker(true),
         },
         {
           icon: 'globe',
           label: 'Language',
           value: languageOptions.find(lang => lang.code === language)?.name || 'English',
-          onPress: () => {},
+          onPress: () => setShowLanguagePicker(true),
         },
       ]
     },
@@ -187,8 +189,10 @@ export default function SettingsScreen() {
       </ScrollView>
 
       {/* Logout Confirmation */}
-      {showLogoutConfirm && (
+      {(showLogoutConfirm || showLanguagePicker || showThemePicker) && (
         <View style={styles.modalOverlay}>
+          {/* Logout modal */}
+          {showLogoutConfirm && (
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
               <View style={styles.modalIconContainer}>
@@ -215,6 +219,51 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             </View>
           </View>
+          )}
+
+          {/* Language picker modal */}
+          {showLanguagePicker && (
+            <View style={styles.modalContainer}>
+              <Text style={[styles.modalTitle, { textAlign: 'center' }]}>Choose Language</Text>
+              <View style={{ marginTop: 12 }}>
+                {languageOptions.map(opt => (
+                  <TouchableOpacity
+                    key={opt.code}
+                    style={[styles.settingItem, styles.settingItemBorder]}
+                    onPress={() => { setLanguage(opt.code as any); setShowLanguagePicker(false); }}
+                  >
+                    <Text style={styles.settingLabel}>{opt.flag} {opt.name}</Text>
+                    {language === opt.code && <Ionicons name="checkmark" size={20} color="#10B981" />}
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TouchableOpacity style={styles.modalCancelButton} onPress={() => setShowLanguagePicker(false)}>
+                <Text style={styles.modalCancelText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Theme picker modal */}
+          {showThemePicker && (
+            <View style={styles.modalContainer}>
+              <Text style={[styles.modalTitle, { textAlign: 'center' }]}>Choose Theme</Text>
+              <View style={{ marginTop: 12 }}>
+                {(['purple','blue','green','pink','orange'] as const).map(theme => (
+                  <TouchableOpacity
+                    key={theme}
+                    style={[styles.settingItem, styles.settingItemBorder]}
+                    onPress={() => { setColorTheme(theme); setShowThemePicker(false); }}
+                  >
+                    <Text style={styles.settingLabel}>{theme.charAt(0).toUpperCase()+theme.slice(1)}</Text>
+                    {colorTheme === theme && <Ionicons name="checkmark" size={20} color="#10B981" />}
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TouchableOpacity style={styles.modalCancelButton} onPress={() => setShowThemePicker(false)}>
+                <Text style={styles.modalCancelText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       )}
 

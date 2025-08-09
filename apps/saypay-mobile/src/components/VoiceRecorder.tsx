@@ -178,7 +178,12 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       onTranscription(result);
     } catch (error) {
       console.error('Transcription error:', error);
-      onError(`Failed to process audio: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const message = (error instanceof Error ? error.message : 'Unknown error');
+      if (/OPENAI_API_KEY/i.test(message) || message.includes('401')) {
+        onError('Voice transcription unavailable. Please set OPENAI_API_KEY in your .env and restart the app.');
+      } else {
+        onError(`Failed to process audio: ${message}`);
+      }
     } finally {
       setIsProcessing(false);
       setRecordingDuration(0);
