@@ -1,0 +1,75 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+      },
+      fontSize: {
+        'base': ['15px', { lineHeight: '1.5' }],
+        'lg': ['18px', { lineHeight: '1.4' }],
+        'xl': ['21px', { lineHeight: '1.3' }],
+        '2xl': ['25px', { lineHeight: '1.2' }],
+        '3xl': ['30px', { lineHeight: '1.1' }],
+        '4xl': ['36px', { lineHeight: '1.1' }],
+      },
+      spacing: {
+        '0.5': '2px',
+        '1': '4px',
+        '1.5': '6px',
+        '2': '8px',
+        '2.5': '10px',
+        '3': '12px',
+        '3.5': '14px',
+        '4': '16px',
+        '5': '20px',
+        '6': '24px',
+        '7': '28px',
+        '8': '32px',
+        '9': '36px',
+        '10': '40px',
+        '11': '44px',
+        '12': '48px',
+        '14': '56px',
+        '16': '64px',
+        '20': '80px',
+        '24': '96px',
+        '28': '112px',
+        '32': '128px',
+      },
+      minHeight: {
+        'touch': '44px',
+      },
+      minWidth: {
+        'touch': '44px',
+      },
+      boxShadow: {
+        'button': '0 2px 8px rgba(0, 0, 0, 0.1)',
+        'button-hover': '0 4px 12px rgba(0, 0, 0, 0.15)',
+        'fab': '0 8px 24px rgba(0, 0, 0, 0.2)',
+        'fab-hover': '0 12px 32px rgba(0, 0, 0, 0.25)',
+      },
+      colors: {
+        primary: {
+          50: '#f0f9ff',
+          100: '#e0f2fe',
+          200: '#bae6fd',
+          300: '#7dd3fc',
+          400: '#38bdf8',
+          500: '#0ea5e9',
+          600: '#0284c7',
+          700: '#0369a1',
+          800: '#075985',
+          900: '#0c4a6e',
+        },
+      },
+      animation: {
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'bounce-gentle': 'bounce 2s infinite',
+      },
+    },
+  },
+  plugins: [],
+};

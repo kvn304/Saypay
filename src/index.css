@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  h1 { font-size: 2.4rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.6rem; }
+  h4 { font-size: 1.3rem; }
+
+  /* Ensure proper contrast ratios */
+  .text-gray-600 {
+    color: rgb(75 85 99); /* 4.5:1 contrast on white */
+  }
+  
+  .dark .text-gray-300 {
+    color: rgb(209 213 219); /* 4.5:1 contrast on dark */
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply min-h-touch min-w-touch px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium rounded-xl shadow-button hover:shadow-button-hover hover:from-blue-600 hover:to-indigo-700 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+
+  .btn-secondary {
+    @apply min-h-touch min-w-touch px-6 py-3 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium rounded-xl border border-gray-200 dark:border-gray-600 shadow-button hover:shadow-button-hover hover:bg-gray-50 dark:hover:bg-gray-600 active:scale-95 transition-all duration-200;
+  }
+
+  .btn-fab {
+    @apply w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-full shadow-fab hover:shadow-fab-hover hover:from-emerald-600 hover:to-green-700 active:scale-95 transition-all duration-200 flex items-center justify-center;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors;
+  }
+
+  .touch-target {
+    @apply min-h-touch min-w-touch;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.7);
+}
+
+/* Focus visible for accessibility */
+.focus-visible:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for theme switching */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
