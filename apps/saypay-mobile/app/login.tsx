@@ -8,7 +8,7 @@ import { useAuth } from '../src/contexts/AuthContext';
 import { useLanguage } from '../src/contexts/LanguageContext';
 
 export default function LoginScreen() {
-  const { signIn, signUp, loading } = useAuth();
+  const { signIn, signUp, loading, resendVerificationEmail } = useAuth();
   const { t } = useLanguage();
   
   const [email, setEmail] = useState('');
@@ -50,11 +50,13 @@ export default function LoginScreen() {
         } else {
           if (needsVerification) {
             Alert.alert(
-              t('success'), 
-              'Please check your email and click the verification link to complete your registration.'
+              t('success'),
+              'Please verify your email. We just sent a link to your inbox.',
+              [
+                { text: 'Resend Email', onPress: async () => { await resendVerificationEmail(email); } },
+                { text: 'OK', onPress: () => { setIsLogin(true); setPassword(''); } },
+              ]
             );
-            setIsLogin(true);
-            setPassword('');
           } else {
             router.replace('/');
           }

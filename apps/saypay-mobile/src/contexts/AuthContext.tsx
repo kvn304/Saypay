@@ -13,6 +13,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<{ error: AuthError | null }>;
   updateProfile: (updates: { name?: string; avatar?: string }) => Promise<{ error: AuthError | null }>;
+  resendVerificationEmail: (email: string) => Promise<{ error: AuthError | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -65,12 +66,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Handle specific auth events
         if (event === 'SIGNED_IN') {
           console.log('User signed in successfully');
+          if (session?.user) {
+            await upsertUserProfile(session.user);
+          }
         } else if (event === 'SIGNED_OUT') {
           console.log('User signed out');
-        } else if (event === 'TOKEN_REFRESHED') {
-          console.log('User signed up, creating profile...');
+        } else if (event === 'USER_UPDATED') {
+          console.log('User updated');
           if (session?.user) {
-            await createUserProfile(session.user);
+            await upsertUserProfile(session.user);
           }
         }
       }
@@ -79,17 +83,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const createUserProfile = async (user: User) => {
+  const upsertUserProfile = async (user: User) => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .insert({
+        .upsert({
           id: user.id,
           name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
           avatar_url: user.user_metadata?.avatar_url,
-        });
+        }, { onConflict: 'id' });
 
-      if (error && error.code !== '23505') { // Ignore duplicate key errors
+      if (error) {
         console.error('Error creating profile:', error);
       }
     } catch (error) {
@@ -110,7 +114,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           options: {
             data: {
               full_name: fullName,
-            }
+            },
+            emailRedirectTo: 'saypay://auth-callback'
           }
         });
         
@@ -194,6 +199,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const resendVerificationEmail = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
+      return { error };
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      return { error: error as AuthError };
+    }
+  };
+
   const value = {
     user,
     session,
@@ -202,6 +220,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signIn,
     signOut,
     updateProfile,
+    resendVerificationEmail,
   };
 
   return (
