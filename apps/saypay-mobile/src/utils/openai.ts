@@ -2,8 +2,11 @@ import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
 import { storage } from './storage';
 
-// Production OpenAI API key with enhanced security
-const OPENAI_API_KEY = 'OPENAI_API_KEY';
+// Load OpenAI API key from configuration or environment (no secrets in repo)
+const OPENAI_API_KEY =
+  (Constants.expoConfig?.extra as any)?.openaiApiKey ||
+  process.env.OPENAI_API_KEY ||
+  '';
 
 // Enhanced cache configuration for production
 interface TranscriptCache {

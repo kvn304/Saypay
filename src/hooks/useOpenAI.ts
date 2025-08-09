@@ -2,10 +2,11 @@
 // Keeping for backward compatibility
 
 export const useOpenAI = () => {
+  const apiKey = (globalThis as any)?.OPENAI_API_KEY || process.env.OPENAI_API_KEY || '';
   return {
-    apiKey: 'OPENAI_API_KEY',
-    isConfigured: true,
-    error: null,
+    apiKey,
+    isConfigured: Boolean(apiKey),
+    error: apiKey ? null : 'OPENAI_API_KEY not configured',
     setApiKey: () => true,
     clearApiKey: () => {},
     makeRequest: async (url: string, options: RequestInit) => {
@@ -13,9 +14,9 @@ export const useOpenAI = () => {
         ...options,
         headers: {
           ...options.headers,
-          'Authorization': `Bearer OPENAI_API_KEY`,
+          Authorization: `Bearer ${apiKey}`,
         },
       });
-    }
+    },
   };
 };

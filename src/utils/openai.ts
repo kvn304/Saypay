@@ -1,5 +1,5 @@
-// Fixed OpenAI API key for production use
-const OPENAI_API_KEY = 'OPENAI_API_KEY';
+// Load OpenAI API key from environment/config
+const OPENAI_API_KEY = (globalThis as any)?.OPENAI_API_KEY || process.env.OPENAI_API_KEY || '';
 
 // Cache for identical transcripts (24h TTL)
 interface TranscriptCache {
