@@ -14,6 +14,9 @@ interface AuthContextType {
   signOut: () => Promise<{ error: AuthError | null }>;
   updateProfile: (updates: { name?: string; avatar?: string }) => Promise<{ error: AuthError | null }>;
   resendVerificationEmail: (email: string) => Promise<{ error: AuthError | null }>;
+  sendEmailOtp: (email: string) => Promise<{ error: AuthError | null }>;
+  verifyEmailOtp: (email: string, token: string) => Promise<{ error: AuthError | null }>;
+  resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -212,6 +215,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const sendEmailOtp = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: 'saypay://auth-callback',
+        },
+      });
+      return { error };
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      return { error: error as AuthError };
+    }
+  };
+
+  const verifyEmailOtp = async (email: string, token: string) => {
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        type: 'email',
+        email,
+        token,
+      });
+      return { error };
+    } catch (error) {
+      console.error('Verify OTP error:', error);
+      return { error: error as AuthError };
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'saypay://auth-callback',
+      });
+      return { error };
+    } catch (error) {
+      console.error('Reset password error:', error);
+      return { error: error as AuthError };
+    }
+  };
+
   const value = {
     user,
     session,
@@ -221,6 +266,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signOut,
     updateProfile,
     resendVerificationEmail,
+    sendEmailOtp,
+    verifyEmailOtp,
+    resetPassword,
   };
 
   return (

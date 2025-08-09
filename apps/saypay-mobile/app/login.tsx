@@ -8,7 +8,7 @@ import { useAuth } from '../src/contexts/AuthContext';
 import { useLanguage } from '../src/contexts/LanguageContext';
 
 export default function LoginScreen() {
-  const { signIn, signUp, loading, resendVerificationEmail } = useAuth();
+  const { signIn, signUp, loading, resendVerificationEmail, sendEmailOtp, verifyEmailOtp, resetPassword } = useAuth();
   const { t } = useLanguage();
   
   const [email, setEmail] = useState('');
@@ -16,6 +16,8 @@ export default function LoginScreen() {
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [useOtp, setUseOtp] = useState(false);
+  const [otp, setOtp] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -35,6 +37,19 @@ export default function LoginScreen() {
 
     try {
       if (isLogin) {
+        if (useOtp) {
+          if (!otp) {
+            Alert.alert(t('error'), 'Enter the code sent to your email');
+            return;
+          }
+          const { error } = await verifyEmailOtp(email, otp);
+          if (error) {
+            Alert.alert('Login Failed', error.message || 'Invalid code');
+          } else {
+            router.replace('/');
+          }
+          return;
+        }
         const { error } = await signIn(email, password);
         
         if (error) {
@@ -112,6 +127,29 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* Login method toggle */}
+          {isLogin && (
+            <View style={[styles.toggleContainer, { marginTop: -16 }]}>
+              <TouchableOpacity
+                style={[styles.toggleButton, !useOtp && styles.activeToggle]}
+                onPress={() => { setUseOtp(false); setOtp(''); }}
+              >
+                <Text style={[styles.toggleText, !useOtp && styles.activeToggleText]}>Password</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.toggleButton, useOtp && styles.activeToggle]}
+                onPress={async () => {
+                  if (!email) { Alert.alert(t('error'), 'Enter your email first'); return; }
+                  setUseOtp(true);
+                  await sendEmailOtp(email);
+                  Alert.alert('Check Email', 'We sent you a 6-digit code.');
+                }}
+              >
+                <Text style={[styles.toggleText, useOtp && styles.activeToggleText]}>Email Code</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
           {/* Form */}
           <View style={styles.form}>
             {/* Full Name (Register only) */}
@@ -148,35 +186,53 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            {/* Password Input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>{t('password')}</Text>
-              <View style={styles.inputWrapper}>
-                <Ionicons name="lock-closed" size={20} color="#9CA3AF" style={styles.inputIcon} />
-                <TextInput
-                  style={styles.textInput}
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder={`Enter your ${t('password').toLowerCase()}`}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-                <TouchableOpacity
-                  style={styles.passwordToggle}
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setShowPassword(!showPassword);
-                  }}
-                >
-                  <Ionicons 
-                    name={showPassword ? "eye-off" : "eye"} 
-                    size={20} 
-                    color="#9CA3AF" 
+            {/* Password or OTP Input */}
+            {(!isLogin || !useOtp) ? (
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>{t('password')}</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="lock-closed" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder={`Enter your ${t('password').toLowerCase()}`}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
                   />
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.passwordToggle}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setShowPassword(!showPassword);
+                    }}
+                  >
+                    <Ionicons 
+                      name={showPassword ? "eye-off" : "eye"} 
+                      size={20} 
+                      color="#9CA3AF" 
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
+            ) : (
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Email Code</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="key" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    value={otp}
+                    onChangeText={setOtp}
+                    placeholder="Enter 6-digit code"
+                    keyboardType="number-pad"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </View>
+              </View>
+            )}
 
             {/* Submit Button */}
             <TouchableOpacity
